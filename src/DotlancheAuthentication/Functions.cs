@@ -79,7 +79,20 @@ public class Functions
             };
         }
 
-        var signUpResponse = await cognitoService.ConfirmSignUp(request.Cpf, request.ConfirmationCode);
+        var confirmSignUpResponse = await cognitoService.ConfirmSignUp(request.Cpf, request.ConfirmationCode);
+
+        return new APIGatewayProxyResponse()
+        {
+            StatusCode = (int)(confirmSignUpResponse.Success ? HttpStatusCode.OK : HttpStatusCode.BadRequest),
+            Body = JsonSerializer.Serialize(confirmSignUpResponse)
+        };
+    }
+
+    [LambdaFunction(ResourceName = "SignIn", Role = DefaultRole)]
+    [HttpApi(LambdaHttpMethod.Post, "/sign-in")]
+    public async Task<APIGatewayProxyResponse> SignIn([FromBody] SignInRequest request, ILambdaContext context)
+    {
+        var signUpResponse = await cognitoService.SignIn(request.Cpf, request.Password);
 
         return new APIGatewayProxyResponse()
         {

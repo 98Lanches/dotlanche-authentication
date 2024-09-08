@@ -131,11 +131,12 @@ public class AWSCognitoService : IAuthenticationService
             };
 
         }
-        catch (System.Exception)
+        catch (System.Exception e)
         {
             return new SignInResult()
             {
                 Success = false,
+                Message = e.Message
             };
         }
     }
