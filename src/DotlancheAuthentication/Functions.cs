@@ -64,4 +64,27 @@ public class Functions
             Body = JsonSerializer.Serialize(signUpResponse)
         };
     }
+
+    [LambdaFunction(ResourceName = "ConfirmSignUp", Role = DefaultRole)]
+    [HttpApi(LambdaHttpMethod.Post, "/confirm-sign-up")]
+    public async Task<APIGatewayProxyResponse> ConfirmSignUp([FromBody] ConfirmSignUpFunctionRequest request, ILambdaContext context)
+    {
+        var requestIsValid = request.IsValid(out var errors);
+        if(!requestIsValid)
+        {
+            return new APIGatewayProxyResponse()
+            {
+                StatusCode = (int)HttpStatusCode.BadRequest,
+                Body = JsonSerializer.Serialize(errors)
+            };
+        }
+
+        var signUpResponse = await cognitoService.ConfirmSignUp(request.Cpf, request.ConfirmationCode);
+
+        return new APIGatewayProxyResponse()
+        {
+            StatusCode = (int)(signUpResponse.Success ? HttpStatusCode.OK : HttpStatusCode.BadRequest),
+            Body = JsonSerializer.Serialize(signUpResponse)
+        };
+    }
 }

@@ -56,6 +56,33 @@
           }
         }
       }
+    },
+    "ConfirmSignUp": {
+      "Type": "AWS::Serverless::Function",
+      "Metadata": {
+        "Tool": "Amazon.Lambda.Annotations",
+        "SyncedEvents": [
+          "RootPost"
+        ]
+      },
+      "Properties": {
+        "Runtime": "dotnet8",
+        "CodeUri": ".",
+        "MemorySize": 512,
+        "Timeout": 30,
+        "Role": "arn:aws:iam::032963977760:role/LabRole",
+        "PackageType": "Zip",
+        "Handler": "DotlancheAuthentication::DotlancheAuthentication.Functions_ConfirmSignUp_Generated::ConfirmSignUp",
+        "Events": {
+          "RootPost": {
+            "Type": "HttpApi",
+            "Properties": {
+              "Path": "/confirm-sign-up",
+              "Method": "POST"
+            }
+          }
+        }
+      }
     }
   }
 }

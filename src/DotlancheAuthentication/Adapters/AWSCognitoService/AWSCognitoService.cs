@@ -89,8 +89,15 @@ public class AWSCognitoService : IAuthenticationService
             ConfirmationCode = confirmationCode
         };
 
-        var response = await providerClient.ConfirmSignUpAsync(request);
-        return new BaseResult() { Success = response.HttpStatusCode == System.Net.HttpStatusCode.OK };
+        try
+        {
+            var response = await providerClient.ConfirmSignUpAsync(request);
+            return new BaseResult() { Success = response.HttpStatusCode == System.Net.HttpStatusCode.OK, Message = "Confirmation Successful" };
+        }
+        catch (System.Exception e)
+        {
+            return new BaseResult() { Success = false, Message = e.Message };
+        }
     }
 
     public async Task<SignInResult> SignIn(string username, string password)
