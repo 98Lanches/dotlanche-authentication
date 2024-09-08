@@ -1,10 +1,10 @@
 namespace DotlancheAuthentication.Core.Entities;
 
-public class User()
+public class User
 {
-    public string Cpf { get; set; }
+    public required string Cpf { get; set; }
 
-    public string Name { get; set; }
+    public required string Name { get; set; }
 
-    public string Email { get; set; }
+    public required string Email { get; set; }
 }

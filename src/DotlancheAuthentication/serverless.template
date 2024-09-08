@@ -3,7 +3,7 @@
   "Transform": "AWS::Serverless-2016-10-31",
   "Description": "This template is partially managed by Amazon.Lambda.Annotations (v1.3.0.0).",
   "Resources": {
-    "DotlancheAuthenticationFunctionsGetUserGenerated": {
+    "GetUser": {
       "Type": "AWS::Serverless::Function",
       "Metadata": {
         "Tool": "Amazon.Lambda.Annotations",
@@ -25,6 +25,33 @@
             "Properties": {
               "Path": "/get-user/{cpf}",
               "Method": "GET"
+            }
+          }
+        }
+      }
+    },
+    "SignUp": {
+      "Type": "AWS::Serverless::Function",
+      "Metadata": {
+        "Tool": "Amazon.Lambda.Annotations",
+        "SyncedEvents": [
+          "RootPost"
+        ]
+      },
+      "Properties": {
+        "Runtime": "dotnet8",
+        "CodeUri": ".",
+        "MemorySize": 512,
+        "Timeout": 30,
+        "Role": "arn:aws:iam::032963977760:role/LabRole",
+        "PackageType": "Zip",
+        "Handler": "DotlancheAuthentication::DotlancheAuthentication.Functions_SignUp_Generated::SignUp",
+        "Events": {
+          "RootPost": {
+            "Type": "HttpApi",
+            "Properties": {
+              "Path": "/sign-up",
+              "Method": "POST"
             }
           }
         }

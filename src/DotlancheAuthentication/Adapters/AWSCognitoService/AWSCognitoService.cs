@@ -41,8 +41,8 @@ public class AWSCognitoService : IAuthenticationService
     {
         var cognitoUser = await cognitoUserPool.FindByIdAsync(cpf);
 
-        if(cognitoUser == null)
-          return null;
+        if (cognitoUser == null)
+            return null;
 
         return new User
         {
@@ -68,8 +68,15 @@ public class AWSCognitoService : IAuthenticationService
             }
         };
 
-        var response = await providerClient.SignUpAsync(signUpRequest);
-        return new BaseResult() { Success = response.HttpStatusCode == System.Net.HttpStatusCode.OK };
+        try
+        {
+            var response = await providerClient.SignUpAsync(signUpRequest);
+            return new BaseResult() { Success = response.HttpStatusCode == System.Net.HttpStatusCode.OK, Message = "SignUp Successful" };
+        }
+        catch (System.Exception e)
+        {
+            return new BaseResult() { Success = false, Message = e.Message };
+        }
     }
 
     public async Task<BaseResult> ConfirmSignUp(string username, string confirmationCode)
