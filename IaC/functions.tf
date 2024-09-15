@@ -8,9 +8,9 @@ locals {
     memory_size = 512
     runtime = "dotnet8"
     envs = {
-      "COGNITO_USER_POOL"    = aws_cognito_user_pool.pool.id
-      "COGNITO_CLIENTID"     = aws_cognito_user_pool_client.client.id
-      "COGNITO_CLIENTSECRET" = aws_cognito_user_pool_client.client.client_secret
+      "COGNITO_USER_POOL"    = aws_cognito_user_pool.users-pool.id
+      "COGNITO_CLIENTID"     = aws_cognito_user_pool_client.users-client.id
+      "COGNITO_CLIENTSECRET" = aws_cognito_user_pool_client.users-client.client_secret
     }
 }
 
