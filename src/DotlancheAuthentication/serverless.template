@@ -3,6 +3,38 @@
   "Transform": "AWS::Serverless-2016-10-31",
   "Description": "This template is partially managed by Amazon.Lambda.Annotations (v1.3.0.0).",
   "Resources": {
+    "SignIn": {
+      "Type": "AWS::Serverless::Function",
+      "Metadata": {
+        "Tool": "Amazon.Lambda.Annotations",
+        "SyncedEvents": [
+          "RootPost"
+        ]
+      },
+      "Properties": {
+        "Runtime": "dotnet8",
+        "CodeUri": ".",
+        "MemorySize": 512,
+        "Timeout": 30,
+        "Role": {
+          "Fn::GetAtt": [
+            "LambdaRoleParameter",
+            "Arn"
+          ]
+        },
+        "PackageType": "Zip",
+        "Handler": "DotlancheAuthentication::DotlancheAuthentication.Functions_SignIn_Generated::SignIn",
+        "Events": {
+          "RootPost": {
+            "Type": "HttpApi",
+            "Properties": {
+              "Path": "/sign-in",
+              "Method": "POST"
+            }
+          }
+        }
+      }
+    },
     "GetUser": {
       "Type": "AWS::Serverless::Function",
       "Metadata": {
@@ -16,7 +48,12 @@
         "CodeUri": ".",
         "MemorySize": 512,
         "Timeout": 30,
-        "Role": "arn:aws:iam::032963977760:role/LabRole",
+        "Role": {
+          "Fn::GetAtt": [
+            "LambdaRoleParameter",
+            "Arn"
+          ]
+        },
         "PackageType": "Zip",
         "Handler": "DotlancheAuthentication::DotlancheAuthentication.Functions_GetUser_Generated::GetUser",
         "Events": {
@@ -43,7 +80,12 @@
         "CodeUri": ".",
         "MemorySize": 512,
         "Timeout": 30,
-        "Role": "arn:aws:iam::032963977760:role/LabRole",
+        "Role": {
+          "Fn::GetAtt": [
+            "LambdaRoleParameter",
+            "Arn"
+          ]
+        },
         "PackageType": "Zip",
         "Handler": "DotlancheAuthentication::DotlancheAuthentication.Functions_SignUp_Generated::SignUp",
         "Events": {
@@ -51,60 +93,6 @@
             "Type": "HttpApi",
             "Properties": {
               "Path": "/sign-up",
-              "Method": "POST"
-            }
-          }
-        }
-      }
-    },
-    "ConfirmSignUp": {
-      "Type": "AWS::Serverless::Function",
-      "Metadata": {
-        "Tool": "Amazon.Lambda.Annotations",
-        "SyncedEvents": [
-          "RootPost"
-        ]
-      },
-      "Properties": {
-        "Runtime": "dotnet8",
-        "CodeUri": ".",
-        "MemorySize": 512,
-        "Timeout": 30,
-        "Role": "arn:aws:iam::032963977760:role/LabRole",
-        "PackageType": "Zip",
-        "Handler": "DotlancheAuthentication::DotlancheAuthentication.Functions_ConfirmSignUp_Generated::ConfirmSignUp",
-        "Events": {
-          "RootPost": {
-            "Type": "HttpApi",
-            "Properties": {
-              "Path": "/confirm-sign-up",
-              "Method": "POST"
-            }
-          }
-        }
-      }
-    },
-    "SignIn": {
-      "Type": "AWS::Serverless::Function",
-      "Metadata": {
-        "Tool": "Amazon.Lambda.Annotations",
-        "SyncedEvents": [
-          "RootPost"
-        ]
-      },
-      "Properties": {
-        "Runtime": "dotnet8",
-        "CodeUri": ".",
-        "MemorySize": 512,
-        "Timeout": 30,
-        "Role": "arn:aws:iam::032963977760:role/LabRole",
-        "PackageType": "Zip",
-        "Handler": "DotlancheAuthentication::DotlancheAuthentication.Functions_SignIn_Generated::SignIn",
-        "Events": {
-          "RootPost": {
-            "Type": "HttpApi",
-            "Properties": {
-              "Path": "/sign-in",
               "Method": "POST"
             }
           }
