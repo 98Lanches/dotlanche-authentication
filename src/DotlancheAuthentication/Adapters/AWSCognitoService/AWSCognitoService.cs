@@ -19,19 +19,15 @@ public class AWSCognitoService : IAuthenticationService
     private readonly string? clientId;
     private readonly string? clientSecret;
 
-    public AWSCognitoService(IConfiguration configuration)
+    public AWSCognitoService()
     {
-        var awsCredentialConfigs = configuration.GetSection("Aws:Credentials");
+        var awsAccessKeyId = Environment.GetEnvironmentVariable("ACCESS_KEY");
+        var awsSecretAccessKey = Environment.GetEnvironmentVariable("SECRET_KEY");
+        var awsSessionToken = Environment.GetEnvironmentVariable("TOKEN");
 
-        var awsAccessKeyId = awsCredentialConfigs.GetValue<string>("awsAccessKeyId");
-        var awsSecretAccessKey = awsCredentialConfigs.GetValue<string>("awsSecretAccessKey");
-        var awsSessionToken = awsCredentialConfigs.GetValue<string>("awsSessionToken");
-
-        var cognitoConfigs = configuration.GetSection("Cognito");
-
-        userPoolId = cognitoConfigs.GetValue<string>("userPoolId");
-        clientId = cognitoConfigs.GetValue<string>("clientId");
-        clientSecret = cognitoConfigs.GetValue<string>("clientSecret");
+        userPoolId = Environment.GetEnvironmentVariable("COGNITO_USER_POOL");
+        clientId = Environment.GetEnvironmentVariable("COGNITO_CLIENTID");
+        clientSecret = Environment.GetEnvironmentVariable("COGNITO_CLIENTSECRET");
 
         providerClient = new AmazonCognitoIdentityProviderClient(awsAccessKeyId, awsSecretAccessKey, awsSessionToken, Amazon.RegionEndpoint.USEast1);
         cognitoUserPool = new CognitoUserPool(userPoolId, clientId, providerClient, clientSecret);
