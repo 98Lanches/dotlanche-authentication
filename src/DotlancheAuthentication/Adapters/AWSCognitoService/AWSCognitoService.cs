@@ -3,11 +3,12 @@ using System.Text;
 using Amazon.CognitoIdentityProvider;
 using Amazon.CognitoIdentityProvider.Model;
 using Amazon.Extensions.CognitoAuthentication;
+using Amazon.Runtime;
+using AWS.Lambda.Powertools.Logging;
 using DotlancheAuthentication.Core.Common;
 using DotlancheAuthentication.Core.Entities;
 using DotlancheAuthentication.Core.Ports.AuthenticationService;
 using DotlancheAuthentication.Core.Ports.AuthenticationService.ResultModels;
-using Microsoft.Extensions.Configuration;
 
 namespace DotlancheAuthentication.Adapters.AWSCognitoService;
 
@@ -19,37 +20,38 @@ public class AWSCognitoService : IAuthenticationService
     private readonly string? clientId;
     private readonly string? clientSecret;
 
-    public AWSCognitoService(IConfiguration configuration)
+    public AWSCognitoService()
     {
-        var awsCredentialConfigs = configuration.GetSection("Aws:Credentials");
+        userPoolId = Environment.GetEnvironmentVariable("COGNITO_USER_POOL");
+        clientId = Environment.GetEnvironmentVariable("COGNITO_CLIENTID");
+        clientSecret = Environment.GetEnvironmentVariable("COGNITO_CLIENTSECRET");
 
-        var awsAccessKeyId = awsCredentialConfigs.GetValue<string>("awsAccessKeyId");
-        var awsSecretAccessKey = awsCredentialConfigs.GetValue<string>("awsSecretAccessKey");
-        var awsSessionToken = awsCredentialConfigs.GetValue<string>("awsSessionToken");
-
-        var cognitoConfigs = configuration.GetSection("Cognito");
-
-        userPoolId = cognitoConfigs.GetValue<string>("userPoolId");
-        clientId = cognitoConfigs.GetValue<string>("clientId");
-        clientSecret = cognitoConfigs.GetValue<string>("clientSecret");
-
-        providerClient = new AmazonCognitoIdentityProviderClient(awsAccessKeyId, awsSecretAccessKey, awsSessionToken, Amazon.RegionEndpoint.USEast1);
+        var credentials = new EnvironmentVariablesAWSCredentials();
+        providerClient = new AmazonCognitoIdentityProviderClient(credentials, Amazon.RegionEndpoint.USEast1);
         cognitoUserPool = new CognitoUserPool(userPoolId, clientId, providerClient, clientSecret);
     }
 
     public async Task<User?> GetUser(string cpf)
     {
-        var cognitoUser = await cognitoUserPool.FindByIdAsync(cpf);
-
-        if (cognitoUser == null)
-            return null;
-
-        return new User
+        try
         {
-            Cpf = cognitoUser.UserID,
-            Name = cognitoUser.Attributes["name"],
-            Email = cognitoUser.Attributes["email"]
-        };
+            var cognitoUser = await cognitoUserPool.FindByIdAsync(cpf);
+
+            if (cognitoUser == null)
+                return null;
+
+            return new User
+            {
+                Cpf = cognitoUser.UserID,
+                Name = cognitoUser.Attributes["name"],
+                Email = cognitoUser.Attributes["email"]
+            };
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, $"error while getting the user: [{ex.Message}]");
+            throw;
+        }
     }
 
     public async Task<BaseResult> SignUp(string cpf, string email, string fullName, string password)
@@ -72,27 +74,6 @@ public class AWSCognitoService : IAuthenticationService
         {
             var response = await providerClient.SignUpAsync(signUpRequest);
             return new BaseResult() { Success = response.HttpStatusCode == System.Net.HttpStatusCode.OK, Message = "SignUp Successful" };
-        }
-        catch (System.Exception e)
-        {
-            return new BaseResult() { Success = false, Message = e.Message };
-        }
-    }
-
-    public async Task<BaseResult> ConfirmSignUp(string username, string confirmationCode)
-    {
-        var request = new ConfirmSignUpRequest()
-        {
-            ClientId = clientId,
-            Username = username,
-            SecretHash = GetSecretHash(username),
-            ConfirmationCode = confirmationCode
-        };
-
-        try
-        {
-            var response = await providerClient.ConfirmSignUpAsync(request);
-            return new BaseResult() { Success = response.HttpStatusCode == System.Net.HttpStatusCode.OK, Message = "Confirmation Successful" };
         }
         catch (System.Exception e)
         {

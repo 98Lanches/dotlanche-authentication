@@ -2,8 +2,6 @@ using Amazon.Lambda.Core;
 using Amazon.Lambda.Annotations;
 using Amazon.Lambda.Annotations.APIGateway;
 using Amazon.Lambda.APIGatewayEvents;
-using System.Text.Json;
-using System.Net;
 using DotlancheAuthentication.Core.Ports.AuthenticationService;
 using DotlancheAuthentication.Contracts;
 
@@ -11,93 +9,43 @@ using DotlancheAuthentication.Contracts;
 
 namespace DotlancheAuthentication;
 
-public class Functions
+public class Functions : ApiGatewayFunctionGroup
 {
-    private const string DefaultRole = "arn:aws:iam::032963977760:role/LabRole";
     private readonly IAuthenticationService cognitoService;
-
     public Functions(IAuthenticationService cognitoService)
     {
         this.cognitoService = cognitoService;
     }
 
-    [LambdaFunction(ResourceName ="GetUser", Role = DefaultRole)]
+    [LambdaFunction(ResourceName = "GetUser")]
     [HttpApi(LambdaHttpMethod.Get, "/get-user/{cpf}")]
     public async Task<APIGatewayProxyResponse> GetUser(string cpf, ILambdaContext context)
     {
         var user = await cognitoService.GetUser(cpf);
-        if (user is null)
-        {
-            return new APIGatewayProxyResponse()
-            {
-                StatusCode = (int)HttpStatusCode.NotFound,
-                Body = JsonSerializer.Serialize(new { Message = "User not found" })
-            };
-        }
 
-        return new APIGatewayProxyResponse()
-        {
-            StatusCode = (int)HttpStatusCode.OK,
-            Body = JsonSerializer.Serialize(user)
-        };
+        if (user is null)
+            return NotFound(new { Message = "User not found" });
+
+        return Ok(user);
     }
 
-    [LambdaFunction(ResourceName = "SignUp", Role = DefaultRole)]
+    [LambdaFunction(ResourceName = "SignUp")]
     [HttpApi(LambdaHttpMethod.Post, "/sign-up")]
     public async Task<APIGatewayProxyResponse> SignUp([FromBody] SignUpFunctionRequest request, ILambdaContext context)
     {
         var requestIsValid = request.IsValid(out var errors);
-        if(!requestIsValid)
-        {
-            return new APIGatewayProxyResponse()
-            {
-                StatusCode = (int)HttpStatusCode.BadRequest,
-                Body = JsonSerializer.Serialize(errors)
-            };
-        }
+        if (!requestIsValid)
+            return BadRequest(errors);
 
         var signUpResponse = await cognitoService.SignUp(request.Cpf, request.Email, request.Name, request.Password);
-
-        return new APIGatewayProxyResponse()
-        {
-            StatusCode = (int)(signUpResponse.Success ? HttpStatusCode.OK : HttpStatusCode.BadRequest),
-            Body = JsonSerializer.Serialize(signUpResponse)
-        };
+        return signUpResponse.Success ? Ok(signUpResponse) : BadRequest(signUpResponse);
     }
 
-    [LambdaFunction(ResourceName = "ConfirmSignUp", Role = DefaultRole)]
-    [HttpApi(LambdaHttpMethod.Post, "/confirm-sign-up")]
-    public async Task<APIGatewayProxyResponse> ConfirmSignUp([FromBody] ConfirmSignUpFunctionRequest request, ILambdaContext context)
-    {
-        var requestIsValid = request.IsValid(out var errors);
-        if(!requestIsValid)
-        {
-            return new APIGatewayProxyResponse()
-            {
-                StatusCode = (int)HttpStatusCode.BadRequest,
-                Body = JsonSerializer.Serialize(errors)
-            };
-        }
-
-        var confirmSignUpResponse = await cognitoService.ConfirmSignUp(request.Cpf, request.ConfirmationCode);
-
-        return new APIGatewayProxyResponse()
-        {
-            StatusCode = (int)(confirmSignUpResponse.Success ? HttpStatusCode.OK : HttpStatusCode.BadRequest),
-            Body = JsonSerializer.Serialize(confirmSignUpResponse)
-        };
-    }
-
-    [LambdaFunction(ResourceName = "SignIn", Role = DefaultRole)]
+    [LambdaFunction(ResourceName = "SignIn")]
     [HttpApi(LambdaHttpMethod.Post, "/sign-in")]
     public async Task<APIGatewayProxyResponse> SignIn([FromBody] SignInRequest request, ILambdaContext context)
     {
-        var signUpResponse = await cognitoService.SignIn(request.Cpf, request.Password);
-
-        return new APIGatewayProxyResponse()
-        {
-            StatusCode = (int)(signUpResponse.Success ? HttpStatusCode.OK : HttpStatusCode.BadRequest),
-            Body = JsonSerializer.Serialize(signUpResponse)
-        };
+        var signInResponse = await cognitoService.SignIn(request.Cpf, request.Password);
+        return signInResponse.Success ? Ok(signInResponse) : BadRequest(signInResponse);
     }
 }
