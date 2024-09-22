@@ -1,13 +1,8 @@
-variable "anonymous_user" {
-  description = "username for anonymous login"
-  type        = string
+locals {
+  anonymousUser = "anonymous"
+  anonymousPass = "#anonymous8796#"
 }
 
-variable "anonymous_password" {
-  description = "default password for anonymous login"
-  sensitive   = true
-  type        = string
-}
 #### USERS ######
 resource "aws_cognito_user_pool" "users-pool" {
   name = "dotlanches-users"
@@ -62,9 +57,9 @@ resource "aws_cognito_user_pool_client" "users-client" {
 }
 
 resource "aws_cognito_user" "anonymous-user" {
-  user_pool_id = aws_cognito_user_pool.management-pool.id
-  username     = var.anonymous_user
-  password     = var.anonymous_password
+  user_pool_id = aws_cognito_user_pool.users-pool.id
+  username     = local.anonymousUser
+  password     = local.anonymousPass
 
   attributes = {
     name           = "Anonymous Login"

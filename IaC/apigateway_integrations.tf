@@ -57,10 +57,10 @@ resource "aws_lambda_permission" "signin" {
 
 ################### DOTLANCHES API
 
-resource "aws_apigatewayv2_integration" "dotlanches_api" {
-  api_id = aws_apigatewayv2_api.apigateway.id
+# resource "aws_apigatewayv2_integration" "dotlanches_api" {
+#   api_id = aws_apigatewayv2_api.apigateway.id
 
-  integration_uri    = "TO DO"
-  integration_type   = "AWS_PROXY"
-  integration_method = "POST"
-}
+#   integration_uri    = "TO DO"
+#   integration_type   = "AWS_PROXY"
+#   integration_method = "POST"
+# }
