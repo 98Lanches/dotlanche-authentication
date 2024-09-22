@@ -1,22 +1,24 @@
 variable "zip_file" {
   description = "path to functions zip file"
-  type = string
+  type        = string
 }
 
 variable "functions_role" {
   description = "role for functions"
-  type = string
+  type        = string
 }
 
 locals {
-    role = "arn:aws:iam::032963977760:role/LabRole"
-    memory_size = 512
-    runtime = "dotnet8"
-    envs = {
-      "COGNITO_USER_POOL"    = aws_cognito_user_pool.users-pool.id
-      "COGNITO_CLIENTID"     = aws_cognito_user_pool_client.users-client.id
-      "COGNITO_CLIENTSECRET" = aws_cognito_user_pool_client.users-client.client_secret
-    }
+  role        = "arn:aws:iam::032963977760:role/LabRole"
+  memory_size = 512
+  runtime     = "dotnet8"
+  envs = {
+    "COGNITO_USER_POOL"    = aws_cognito_user_pool.users-pool.id
+    "COGNITO_CLIENTID"     = aws_cognito_user_pool_client.users-client.id
+    "COGNITO_CLIENTSECRET" = aws_cognito_user_pool_client.users-client.client_secret
+    "ANONYMOUS_USERNAME"   = var.anonymous_user
+    "ANONYMOUS_PASSWORD"   = var.anonymous_password
+  }
 }
 
 resource "aws_lambda_function" "getuser" {

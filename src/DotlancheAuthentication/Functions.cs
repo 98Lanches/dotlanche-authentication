@@ -4,6 +4,7 @@ using Amazon.Lambda.Annotations.APIGateway;
 using Amazon.Lambda.APIGatewayEvents;
 using DotlancheAuthentication.Core.Ports.AuthenticationService;
 using DotlancheAuthentication.Contracts;
+using System.Runtime.InteropServices;
 
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
 
@@ -45,6 +46,15 @@ public class Functions : ApiGatewayFunctionGroup
     [HttpApi(LambdaHttpMethod.Post, "/sign-in")]
     public async Task<APIGatewayProxyResponse> SignIn([FromBody] SignInRequest request, ILambdaContext context)
     {
+        if (request.Anonymous)
+        {
+            request.Cpf = Environment.GetEnvironmentVariable("ANONYMOUS_USERNAME") ??
+                throw new Exception("Invalid anonymous configuration");
+
+            request.Password = Environment.GetEnvironmentVariable("ANONYMOUS_PASSWORD") ??
+                throw new Exception("Invalid anonymous configuration");
+        }
+
         var signInResponse = await cognitoService.SignIn(request.Cpf, request.Password);
         return signInResponse.Success ? Ok(signInResponse) : BadRequest(signInResponse);
     }
