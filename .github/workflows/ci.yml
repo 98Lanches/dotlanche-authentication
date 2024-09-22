@@ -1,0 +1,46 @@
+name: CI
+on:
+  pull_request:
+jobs:
+  build:
+    name: "Build and Test Functions"
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+
+    - name: Restore dependencies
+      run: dotnet restore
+
+    - id: build_functions
+      name: Build Functions
+      run: dotnet build --no-restore
+    - id: test
+      name: Run Tests
+      run: dotnet test --no-build --verbosity normal
+
+  validate:
+    name: "Terraform Validate"
+    defaults:
+      run:
+        shell: bash
+        working-directory: ./IaC/
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: "1.1.7"
+
+    - id: init
+      name: Terraform Init
+      run: terraform init
+
+    - id: validate
+      name: Terraform Validate
+      run: terraform validate
