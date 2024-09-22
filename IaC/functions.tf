@@ -3,6 +3,11 @@ variable "zip_file" {
   type = string
 }
 
+variable "functions_role" {
+  description = "role for functions"
+  type = string
+}
+
 locals {
     role = "arn:aws:iam::032963977760:role/LabRole"
     memory_size = 512
