@@ -1,0 +1,65 @@
+name: CD
+on:
+  pull_request:
+
+  push:
+    branches: 
+      - main
+env:
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+  AWS_REGION: us-east-1
+
+jobs:
+  package:
+    name: "Package functions and Deploy Terraform"
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+
+    - name: Install Lambda Tools
+      run: dotnet tool install -g Amazon.Lambda.Tools
+
+    - name: Build
+      working-directory: ./src/DotlancheAuthentication
+      run: dotnet build -c release
+
+    - name: Generate Lambdas ZIP
+      working-directory: ./src/DotlancheAuthentication
+      run: dotnet lambda package ../../IaC/v${{ github.run_id }}.zip
+
+    - uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: "1.1.7"
+
+    - id: init
+      name: Terraform Init
+      working-directory: ./IaC
+      run: terraform init -backend-config="bucket=${{ vars.TERRAFORM_S3_BACKEND }}"
+
+    - id: plan
+      name: Terraform Plan
+      working-directory: ./IaC
+      env: 
+        TF_VAR_zip_file: v${{ github.run_id }}.zip
+        TF_VAR_functions_role: ${{ vars.LAB_ROLE }}
+      run: terraform plan 
+
+    - id: apply
+      name: Terraform Apply
+      working-directory: ./IaC
+      env: 
+        TF_VAR_zip_file: v${{ github.run_id }}.zip
+        TF_VAR_functions_role: ${{ vars.LAB_ROLE }}
+      run: terraform apply -auto-approve
