@@ -1,3 +1,8 @@
+locals {
+  anonymousUser = "anonymous"
+  anonymousPass = "#anonymous8796#"
+}
+
 #### USERS ######
 resource "aws_cognito_user_pool" "users-pool" {
   name = "dotlanches-users"
@@ -51,6 +56,18 @@ resource "aws_cognito_user_pool_client" "users-client" {
   generate_secret = true
 }
 
+resource "aws_cognito_user" "anonymous-user" {
+  user_pool_id = aws_cognito_user_pool.users-pool.id
+  username     = local.anonymousUser
+  password     = local.anonymousPass
+
+  attributes = {
+    name           = "Anonymous Login"
+    email          = "support@dotlanches.com"
+    email_verified = true
+  }
+}
+
 #### MANAGEMENT #####
 resource "aws_cognito_user_pool" "management-pool" {
   name = "dotlanches-management"
@@ -101,18 +118,18 @@ resource "aws_cognito_user_pool_client" "management-client" {
   user_pool_id    = aws_cognito_user_pool.management-pool.id
   generate_secret = true
 
-  allowed_oauth_flows = [ "implicit" ]
-  allowed_oauth_scopes = [ "openid" ]
+  allowed_oauth_flows                  = ["implicit"]
+  allowed_oauth_scopes                 = ["openid"]
   allowed_oauth_flows_user_pool_client = true
-  callback_urls = [ "https://example.com" ]
-  auth_session_validity = 15
-  supported_identity_providers = [ "COGNITO" ]
+  callback_urls                        = ["https://example.com"]
+  auth_session_validity                = 15
+  supported_identity_providers         = ["COGNITO"]
 }
 
 resource "aws_cognito_user" "management-example-user" {
   user_pool_id = aws_cognito_user_pool.management-pool.id
   username     = "test@email.com"
-  password = "s3cretPa$$w0rd"
+  password     = "s3cretPa$$w0rd"
 
   attributes = {
     name           = "Usuário Funcionário Teste"
