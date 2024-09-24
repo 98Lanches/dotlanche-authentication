@@ -1,4 +1,3 @@
-
 variable "zip_file" {
   description = "path to functions zip file"
   type        = string

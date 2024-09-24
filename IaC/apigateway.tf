@@ -1,3 +1,29 @@
+data "aws_vpc" "vpc" {
+  filter {
+    name   = "tag:Project"
+    values = ["Dotlanches"]
+  }
+}
+
+data "aws_subnets" "private_subnets" {
+  filter {
+    name   = "tag:Project"
+    values = ["Dotlanches"]
+  }
+
+  filter {
+    name   = "tag:type"
+    values = ["private"]
+  }
+}
+
+data "aws_security_group" "eks_security_group" {
+  filter {
+    name   = "tag:aws:eks:cluster-name"
+    values = ["dotcluster"]
+  }
+}
+
 resource "aws_apigatewayv2_api" "apigateway" {
   name          = "dotlanches-api-gateway"
   protocol_type = "HTTP"
@@ -6,31 +32,14 @@ resource "aws_apigatewayv2_api" "apigateway" {
 resource "aws_apigatewayv2_stage" "apigateway-stage" {
   api_id = aws_apigatewayv2_api.apigateway.id
 
-  name        = "v1"
+  name        = "$default"
   auto_deploy = true
 }
-resource "aws_apigatewayv2_authorizer" "users-authorizer" {
-  name                              = "dotlanche-user-authorizer"
-  api_id                            = aws_apigatewayv2_api.apigateway.id
-  identity_sources                  = ["$request.header.Authorization"]
-  authorizer_type                   = "JWT"
 
-  jwt_configuration {
-    audience = [ aws_cognito_user_pool_client.users-client.id ]
-    issuer = "https://${aws_cognito_user_pool.users-pool.endpoint}"
-  }
-}
-
-resource "aws_apigatewayv2_authorizer" "management-authorizer" {
-  name                              = "dotlanche-management-authorizer"
-  api_id                            = aws_apigatewayv2_api.apigateway.id
-  identity_sources                  = ["$request.header.Authorization"]
-  authorizer_type                   = "JWT"
-
-  jwt_configuration {
-    audience = [ aws_cognito_user_pool_client.management-client.id ]
-    issuer = "https://${aws_cognito_user_pool.management-pool.endpoint}"
-  }
+resource "aws_apigatewayv2_vpc_link" "apigateway-vpc_link" {
+  name               = "EKS_LB"
+  security_group_ids = [data.aws_security_group.eks_security_group.id]
+  subnet_ids         = data.aws_subnets.private_subnets.ids
 }
 
 output "api_gateway_url" {
