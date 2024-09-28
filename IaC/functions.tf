@@ -1,5 +1,5 @@
 locals {
-  role        = "arn:aws:iam::032963977760:role/LabRole"
+  role        = "arn:aws:iam::426655075367:role/LabRole"
   memory_size = 512
   runtime     = "dotnet8"
   envs = {
