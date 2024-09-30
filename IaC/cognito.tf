@@ -46,12 +46,12 @@ resource "aws_cognito_user_pool" "users-pool" {
 }
 
 resource "aws_cognito_user_pool_domain" "cognito-domain" {
-  domain       = "dotlanches"
+  domain       = "dotlanches-1"
   user_pool_id = aws_cognito_user_pool.users-pool.id
 }
 
 resource "aws_cognito_user_pool_client" "users-client" {
-  name            = "dotlanches-users-client"
+  name            = "dotlanches-1-users-client"
   user_pool_id    = aws_cognito_user_pool.users-pool.id
   generate_secret = true
 }
@@ -70,7 +70,7 @@ resource "aws_cognito_user" "anonymous-user" {
 
 #### MANAGEMENT #####
 resource "aws_cognito_user_pool" "management-pool" {
-  name = "dotlanches-management"
+  name = "dotlanches-1-management"
 
   username_attributes = ["email"]
 
@@ -139,6 +139,6 @@ resource "aws_cognito_user" "management-example-user" {
 }
 
 resource "aws_cognito_user_pool_domain" "management-cognito-domain" {
-  domain       = "dotlanches-management"
+  domain       = "dotlanches-1-management"
   user_pool_id = aws_cognito_user_pool.management-pool.id
 }
