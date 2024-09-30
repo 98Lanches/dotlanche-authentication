@@ -46,12 +46,12 @@ resource "aws_cognito_user_pool" "users-pool" {
 }
 
 resource "aws_cognito_user_pool_domain" "cognito-domain" {
-  domain       = "dotlanches"
+  domain       = "dotlanches-1"
   user_pool_id = aws_cognito_user_pool.users-pool.id
 }
 
 resource "aws_cognito_user_pool_client" "users-client" {
-  name            = "dotlanches-users-client"
+  name            = "dotlanches-1-users-client"
   user_pool_id    = aws_cognito_user_pool.users-pool.id
   generate_secret = true
 }
