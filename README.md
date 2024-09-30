@@ -1,7 +1,7 @@
 # 🔑 Dotlanche Authentication
 
 Repositório para gerenciamento da infraestrutura de autenticação e autorização da Dotlanches. 
-Contém scripts terraform para criação da infraestrutura e o código das Lambda Functions.
+Contém scripts terraform para criação da infraestrutura e o código das Lambda Functions..
 
 ![arquitetura](./docs/auth_architecture.jpg)
 
