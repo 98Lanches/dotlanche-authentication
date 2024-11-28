@@ -14,17 +14,18 @@ resource "aws_lb" "dotlanche_api_lb" {
 
 resource "aws_lb_target_group" "dotlanche_api_tg" {
   name     = "dotlanche-api-tg"
-  port     = 30045
+  port     = 30080
   protocol = "TCP"
   vpc_id   = data.aws_vpc.vpc.id
 
   health_check {
-    path                = "/health"
+    path                = "/healthz"
     interval            = 60
     timeout             = 10
     healthy_threshold   = 2
     unhealthy_threshold = 2
-    matcher             = "200"
+    matcher             = "200,404"
+    port                = 30099
   }
 
   tags = {
@@ -52,7 +53,7 @@ data "aws_instances" "dotcluster-node-instances" {
 
 resource "aws_lb_target_group_attachment" "dotlanche_api_tg_attachment" {
   for_each         = toset(data.aws_instances.dotcluster-node-instances.ids)
-  port             = 30045
+  port             = 30080
   target_group_arn = aws_lb_target_group.dotlanche_api_tg.arn
   target_id        = each.value
 }
