@@ -22,8 +22,7 @@ A infraestrutura é provisionada através de IaC (infrastructure as code) utiliz
 ## Infraestrutura Gerenciada:
 
 - **AWS Cognito**
-    - Users user Pool, client
-    - Management user Pool, client
+    - User Pool, client
     - Usuários padrão e default
 - **AWS Lambda Functions**
     - Get User
@@ -32,7 +31,7 @@ A infraestrutura é provisionada através de IaC (infrastructure as code) utiliz
 - **AWS API Gateway**
     - Routes
     - Integrations com functions e com vpc private link
-    - Autorizers dos pools user e management
+    - Authorizer para a integração com LB
     - VPC Link para VPC que contém o EKS
 - **Load Balancer**
     - Listener

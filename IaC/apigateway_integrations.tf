@@ -55,7 +55,7 @@ resource "aws_lambda_permission" "signin" {
   source_arn = "${aws_apigatewayv2_api.apigateway.execution_arn}/*/*"
 }
 
-################### DOTLANCHES API
+################### DOTLANCHES APIs
 
 resource "aws_apigatewayv2_integration" "private-loadbalancer-integration" {
   api_id           = aws_apigatewayv2_api.apigateway.id
