@@ -13,7 +13,7 @@ O repositório contém 3 Lambda Functions da AWS em dotnet que foram construída
 
 - **Get User**: Permite que usuários se identifiquem através do seu CPF, buscando os usuários cadastrados no cognito.
 - **Sign Up**: Permite que usuários se cadastrem enviando suas informações básicas como CPF, Nome, email e senha.
-- **Sign In**: Realiza a autenticação do usuário através de CPF e senha, retorna o token JWT para a autorização no API Gateway. Também permite a geração de token anônimo caso o usuário não queira se identificar.
+- **Sign In**: Realiza a autenticação do usuário através de CPF e senha, retorna o token JWT para a autorização no API Gateway. Também permite a geração de token anônimo caso o usuário não queira se identificar
 
 # 🛠 Infraestrutura
 
